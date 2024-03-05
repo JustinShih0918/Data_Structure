@@ -1,32 +1,28 @@
 #include <iostream>
-#include <stdlib.h>
+#include <vector>
 using namespace std;
 
 int N,K;
 
-int steal(int n,int totalweight,int totalval, int value[],int weight[]){
-    int tmpVal;
-    int tmpWeight;
-    if(totalweight>=K || n==N-1) return totalval;
-    else{
-        tmpVal =totalval+value[n];
-        tmpWeight = totalweight+weight[n];
-
-
-    }
-    
-}
-
 
 int main(void){
     cin>>N>>K;
-    int* value = (int*)malloc(sizeof(int)*N);
-    int* weight = (int*)malloc(sizeof(int)*N);
+    // int dp[1005] = {0};
+    // int weight[105] = {0};
+    // int value[105] = {0};
+    vector<int> dp(K+1);
+    vector<int> weight(N);
+    vector<int> value(N);
 
     for(int i = 0;i<N;i++){
         cin>>value[i]>>weight[i];
     }
 
-    free(value);
-    free(weight);
+    for(int i = 0;i<N;i++){
+        for(int j = K;j-weight[i]>=0;j--){
+            dp[j] = max(dp[j],dp[j-weight[i]]+value[i]);
+        }
+    }
+    cout<<dp[K]<<"\n";
+
 }
