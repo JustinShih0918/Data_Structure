@@ -60,8 +60,8 @@ int main(void){
     int R,L,N;
     cin>>R>>L>>N;
     Map miner(L,R);
-    Stack bag(100);
-    Queue tools(100);
+    Stack bag(1000);
+    Queue tools(1000);
     char movement[3];
     while (N--)
     {
@@ -71,7 +71,7 @@ int main(void){
             cin>>col;
             col++;
             char dig = miner.dig(col);
-            if(dig == 'D'||dig == 'G') bag.Push('G');
+            if(dig == 'D'||dig == 'G') bag.Push(dig);
             else if(dig == 'B') miner.bomb(miner.getDig_row(),col);
             else if(dig == 'C') miner.lucky_clover(col,bag.Top());
             else if(dig == 'P') bag.pig();
@@ -109,12 +109,13 @@ Stack::Stack(int size){
     capacity = size;
     top = -1;
     stack = new char[size];
+    memset(stack,'\0',sizeof(stack));
 }
 void Stack::doubleSize(){
 
     capacity *= 2;
     char *newStack = new char[capacity];
-
+    memset(newStack,'\0',sizeof(newStack));
     for (int i = 0 ; i < capacity/2; i++) {
         newStack[i] = stack[i];
     }
@@ -148,17 +149,18 @@ char Stack::Pop(){
 }
 
 void Stack::pig(){
-    if(stack[top] == 'D') return;
-    int steal_from = -1;
-    for(int i = top;i>=0;i--){
-        if(stack[i] == 'D'){
-            steal_from = i+1;
-            break;
-        }
-        else if(i == 0 && steal_from == -1) steal_from = 0;
-    }
-    for(int i = steal_from;i<=top;i++) stack[i] = '\0';
-    top = steal_from-1;
+    while (!isEmpty()&& Top()!='D') Pop();
+    // if(stack[top] == 'D') return;
+    // int steal_from = -1;
+    // for(int i = top;i>=0;i--){
+    //     if(stack[i] == 'D'){
+    //         steal_from = i+1;
+    //         break;
+    //     }
+    //     else if(i == 0 && steal_from == -1) steal_from = 0;
+    // }
+    // for(int i = steal_from;i<=top;i++) stack[i] = '\0';
+    // top = steal_from-1;
 }
 
 void Stack::printStack(){
@@ -181,11 +183,13 @@ Queue::Queue(int size){
     rear = 0;
     capacity = size;
     queue = new char[size];
+    memset(queue,'\0',sizeof(queue));
 }
 
 void Queue::doubleSize(){
     capacity*=2;
     char* newQueue = new char[capacity];
+    memset(newQueue,'\0',sizeof(newQueue));
     int j = -1;
     for (int i = top; i <= rear; i++) {
         j++;
@@ -290,7 +294,7 @@ void Map::lucky_clover(int now_c,char input){
     int max = -1;
     for(int i = Row;i>=1;i--){
         for(int j = 1;j<=Col;j++){
-            if(map[i][j]!='\0'&& map[i][j]!='_'){
+            if(map[i][j]!='_'){
                 max = i;
                 break;
             }
