@@ -12,10 +12,12 @@ class Stack{
         char Pop();
         void pig();
         void printStack();
+        bool isFull();
     private:
         int top;
         int capacity;
         char* stack;
+        void doubleSize();
 };
 
 class Queue{
@@ -27,11 +29,13 @@ class Queue{
         void Push(char item);
         char Pop();
         void printQueue();
+        bool isFull();
     private:
         int top;
         int rear;
         int capacity;
         char* queue;
+        void doubleSize();
 };
 
 class Map{
@@ -106,6 +110,22 @@ Stack::Stack(int size){
     top = -1;
     stack = new char[size];
 }
+void Stack::doubleSize(){
+
+    capacity *= 2;
+    char *newStack = new char[capacity];
+
+    for (int i = 0 ; i < capacity/2; i++) {
+        newStack[i] = stack[i];
+    }
+
+    delete [] stack;   
+    stack = newStack;
+}
+
+bool Stack::isFull(){
+    return (top == capacity-1);
+}
 
 bool Stack::isEmpty(){
     if(top>=0) return false;
@@ -113,6 +133,8 @@ bool Stack::isEmpty(){
 }
 
 void Stack::Push(char item){
+    if(isFull()) doubleSize();
+
     if(top<capacity-1){
         stack[++top] = item;
     }
@@ -161,6 +183,24 @@ Queue::Queue(int size){
     queue = new char[size];
 }
 
+void Queue::doubleSize(){
+    capacity*=2;
+    char* newQueue = new char[capacity];
+    int j = -1;
+    for (int i = top; i <= rear; i++) {
+        j++;
+        newQueue[j] = queue[i];
+    }
+    top = 0;
+    rear = j;
+    delete [] queue;
+    queue = newQueue;
+}
+
+bool Queue::isFull(){
+    return (rear+1 == capacity);
+}
+
 bool Queue::isEmpty(){
     return (top == rear);
 }
@@ -188,6 +228,7 @@ char Queue::Pop(){
 }
 
 void Queue::Push(char item){
+    if(isFull()) doubleSize();
     queue[rear++] = item;
 }
 char Queue::Top(){
