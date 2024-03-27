@@ -75,7 +75,7 @@ int main(void){
             else if(dig == 'B') miner.bomb(miner.getDig_row(),col);
             else if(dig == 'C') miner.lucky_clover(col,bag.Top());
             else if(dig == 'P') bag.pig();
-            else tools.Push(dig);
+            else if (dig == 'M'||dig == 'F') tools.Push(dig);
             // miner.printMap();
             // tools.printQueue();
             // bag.printStack();
@@ -89,7 +89,7 @@ int main(void){
                     else if(dig == 'B') miner.bomb(miner.getDig_row(),i);
                     else if(dig == 'C') miner.lucky_clover(i,bag.Top());
                     else if(dig == 'P') bag.pig();
-                    else tools.Push(dig);
+                    else if (dig == 'M'||dig == 'F') tools.Push(dig);
                 }
             }
             // miner.printMap();
@@ -109,13 +109,13 @@ Stack::Stack(int size){
     capacity = size;
     top = -1;
     stack = new char[size];
-    memset(stack,'\0',sizeof(stack));
+    memset(stack,'\0',sizeof(char)*capacity);
 }
 void Stack::doubleSize(){
 
     capacity *= 2;
     char *newStack = new char[capacity];
-    memset(newStack,'\0',sizeof(newStack));
+    memset(newStack,'\0',sizeof(char)*capacity);
     for (int i = 0 ; i < capacity/2; i++) {
         newStack[i] = stack[i];
     }
@@ -183,13 +183,13 @@ Queue::Queue(int size){
     rear = 0;
     capacity = size;
     queue = new char[size];
-    memset(queue,'\0',sizeof(queue));
+    memset(queue,'\0',sizeof(char)*capacity);
 }
 
 void Queue::doubleSize(){
     capacity*=2;
     char* newQueue = new char[capacity];
-    memset(newQueue,'\0',sizeof(newQueue));
+    memset(newQueue,'\0',sizeof(char)*capacity);
     int j = -1;
     for (int i = top; i <= rear; i++) {
         j++;
