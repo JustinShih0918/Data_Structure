@@ -147,7 +147,10 @@ void Stack::Push(char item){
 
 char Stack::Pop(){
     if(isEmpty()) return '\0';
-    return stack[top--];
+    char answer = stack[top];
+    stack[top] = '\0';
+    top--;
+    return answer;
 }
 
 void Stack::pig(){
@@ -218,6 +221,7 @@ char Queue::Pop(){
     if(isEmpty()) return '\0';
     char answer = queue[top];
     for(int i = 0; i < rear-1; ++i) queue[i] = queue[i+1];
+    queue[rear] = '\0';
     rear--;
     return answer;
 }
@@ -273,32 +277,24 @@ int Map::getRow(){
 
 void Map::printMap(){
     cout<<"FINAL MAP:"<<"\n";
-    int start_row = -1;
+    if(isEmpty()) return;
+    
     for(int i = Row;i>=1;i--){
         for(int j = 1;j<=Col;j++){
-            if(map[i][j]!='_'){
-                start_row = i;
-                break;
-            }
+            cout<<map[i][j]<<" ";
         }
-        if(start_row!=-1) break;
+        cout<<"\n";
     }
-    if(start_row == -1) return;
-    else{
-        for(int i = start_row;i>=1;i--){
-            for(int j = 1;j<=Col;j++){
-                cout<<map[i][j]<<" ";
-            }
-            cout<<"\n";
-        }
-    }
+    
 }
 
 void Map::lucky_clover(int now_c,char input){
-    if(input == '\0') return;
+    if(input == '\0' || isEmpty()) return;
+    int L = max(1,now_c-2);
+    int R = min(Col,now_c+2);
     int max = -1;
     for(int i = Row;i>=1;i--){
-        for(int j = now_c-2;j<=now_c+2 && j>=1 && j<=Col;j++){
+        for(int j = L;j<=R;j++){
             if(map[i][j]!='_'){
                 max = i;
                 break;
@@ -306,13 +302,12 @@ void Map::lucky_clover(int now_c,char input){
         }
         if(max != -1) break;
     }
-    if(max == -1) return;
     int tmp = max;
     max++;
     int count = 0;
     while (count<3)
     {
-        for(int j = now_c-2;j>=1&&j<=Col&&j<=now_c+2;j++) map[max][j] = input;
+        for(int j = L;j<=R;j++) map[max][j] = input;
         max++;
         count++;
     }
@@ -338,19 +333,9 @@ void Map::flashlight(){
         cout<<"MINE LEVEL:1\n_ _ _ _ _ _ \n";
         return;
     }
-    int look_this_row = -1;
-    for(int i = Row;i>=1;i--){
-        for(int j = 1;j<=Col;j++){
-            if(map[i][j]!='_'){
-                look_this_row = i;
-                break;
-            }
-        }
-        if(look_this_row!=-1) break;
-    }
-    cout<<"MINE LEVEL:"<<look_this_row<<"\n";
+    cout<<"MINE LEVEL:"<<Row<<"\n";
     for(int i = 1;i<=Col;i++){
-        cout<<map[look_this_row][i]<<" ";
+        cout<<map[Row][i]<<" ";
     }
     cout<<"\n";
     
