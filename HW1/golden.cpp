@@ -36,24 +36,6 @@ class cQueue{
         char* cqueue;
 };
 
-class Queue{
-    public:
-        Queue(int size);
-        bool isEmpty();
-        char Top();
-        char Rear();
-        void Push(char item);
-        char Pop();
-        void printQueue();
-        bool isFull();
-    private:
-        int top;
-        int rear;
-        int capacity;
-        char* queue;
-        void doubleSize();
-};
-
 class Map{
     public:
         Map(int r,int c);
@@ -77,8 +59,7 @@ int main(void){
     int R,L,N;
     cin>>R>>L>>N;
     Map miner(L,R);
-    Stack bag(100000);
-    Queue tools(1000); 
+    Stack bag(1000);
     cQueue inventory(100);
     char movement[5];
     while (N--)
@@ -97,7 +78,6 @@ int main(void){
             else if (dig == 'M'||dig == 'F') inventory.enQueue(dig);
             miner.updateRow();
             //miner.printMap();
-            // tools.printQueue();
             //bag.printStack();
         }else if(movement[0] == 'U'){
             char use_tool = inventory.deQueue();
@@ -116,7 +96,6 @@ int main(void){
                 miner.updateRow();
             }
             //miner.printMap();
-            // tools.printQueue();
             //bag.printStack();
         }
     }
@@ -188,71 +167,6 @@ void Stack::printStack(){
         }
         cout<<"\n";
     }
-}
-
-//Queue
-Queue::Queue(int size){
-    top = 0;
-    rear = 0;
-    capacity = size;
-    queue = new char[size];
-    memset(queue,'\0',sizeof(char)*capacity);
-}
-
-void Queue::doubleSize(){
-    capacity*=2;
-    char* newQueue = new char[capacity];
-    memset(newQueue,'\0',sizeof(char)*capacity);
-    int j = -1;
-    for (int i = top; i < rear; i++) {
-        j++;
-        newQueue[j] = queue[i];
-    }
-    top = 0;
-    rear = j+1;
-    delete [] queue;
-    queue = newQueue;
-}
-
-bool Queue::isFull(){
-    return (rear == capacity);
-}
-
-bool Queue::isEmpty(){
-    return (top == rear);
-}
-
-void Queue::printQueue(){
-    cout<<"FINAL Tools:"<<"\n";
-    if(isEmpty()) {
-        cout<<"\n";
-        return;
-    }
-    else{
-        for(int i = top;i<rear;i++){
-            cout<<queue[i]<<" ";
-        }
-        cout<<"\n";
-    }
-}
-
-char Queue::Pop(){
-    if(isEmpty()) return '\0';
-    char answer = queue[top];
-    queue[top] = '\0';
-    top++;
-    return answer;
-}
-
-void Queue::Push(char item){
-    if(isFull()) doubleSize();
-    queue[rear++] = item;
-}
-char Queue::Top(){
-    return queue[top];
-}
-char Queue::Rear(){
-    return queue[rear-1];
 }
 
 //Map 
