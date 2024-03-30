@@ -70,7 +70,7 @@ int main(void){
             cin>>col;
             col++;
             char dig = miner.dig(col);
-            if(dig!='C') miner.updateRow();
+            miner.updateRow();
             if(dig == 'D'||dig == 'G') bag.Push(dig);
             else if(dig == 'B') miner.bomb(miner.getDig_row(),col);
             else if(dig == 'C') miner.lucky_clover(col,bag.Top());
@@ -85,7 +85,7 @@ int main(void){
             else if(use_tool == 'M'){
                 for(int i = 1;i<=R;i++){
                     char dig = miner.dig(i);
-                    if(dig!='C') miner.updateRow();
+                    miner.updateRow();
                     if(dig == 'G' || dig == 'D') bag.Push(dig);
                     else if(dig == 'B') miner.bomb(miner.getDig_row(),i);
                     else if(dig == 'C') miner.lucky_clover(i,bag.Top());
@@ -197,6 +197,7 @@ void Map::updateRow(){
         }
         if(hasChange) break;
     }
+    if(isEmpty()) Row = 1;
 }
 
 int Map::getDig_row(){
@@ -208,7 +209,7 @@ int Map::getRow(){
 }
 
 void Map::printMap(){
-    cout<<"FINAL MAP:"<<"\n";
+    cout<<"FINAL MAP:\n";
     if(isEmpty()) return;
     
     for(int i = Row;i>=1;i--){
@@ -221,7 +222,9 @@ void Map::printMap(){
 }
 
 void Map::lucky_clover(int now_c,char input){
-    if(input == '\0' || isEmpty()) return;
+    if(isEmpty()) return;
+    map[Dig_row][now_c] = '_';
+    if(input == '\0') return;
     int L = max(1,now_c-2);
     int R = min(Col,now_c+2);
     
@@ -236,6 +239,7 @@ void Map::lucky_clover(int now_c,char input){
         count++;
     }
     if(tmp+3>Row) Row = tmp+3;
+    updateRow();
 }
 
 char Map::dig(int col){
@@ -247,7 +251,7 @@ char Map::dig(int col){
     for(int i = Row;i>=1;i--){
         if(map[i][col]!='_'){
             answer = map[i][col];
-            map[i][col] = '_';
+            if(map[i][col]!='C') map[i][col] = '_';
             Dig_row = i;
             return answer;
         }
@@ -256,10 +260,8 @@ char Map::dig(int col){
 }
 
 void Map::flashlight(){
-    if(isEmpty()) {
-        cout<<"MINE LEVEL:1\n_ _ _ _ _ _ \n";
-        return;
-    }
+    if(isEmpty()) Row = 1;
+
     updateRow();
     cout<<"MINE LEVEL:"<<Row<<"\n";
     for(int i = 1;i<=Col;i++){
@@ -269,14 +271,13 @@ void Map::flashlight(){
 }
 
 void Map::bomb(int now_r,int now_c){
-    map[now_r][now_c] = '_';
     int r[8] = {0,1,1,1,0,-1,-1,-1};
     int c[8] = {-1,-1,0,1,1,1,0,-1};
 
     for(int i = 0;i<8;i++){
         int row = now_r+r[i];
         int col = now_c+c[i];
-        if(row<=Row&&row>=1&&col<=Col&&col>=1) map[row][col] = '_';
+        map[row][col] = '_';
     }
     updateRow();
 }
