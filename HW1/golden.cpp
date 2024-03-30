@@ -20,6 +20,21 @@ class Stack{
         void doubleSize();
 };
 
+class cQueue{
+    public:
+        cQueue(int size);
+        bool isFull();
+        bool isEmpty();
+        void enQueue(char item);
+        char deQueue();
+        void printQueue();
+    private:
+        int capacity;
+        int front;
+        int rear;
+        char* cqueue;
+};
+
 class Queue{
     public:
         Queue(int size);
@@ -63,6 +78,7 @@ int main(void){
     Map miner(L,R);
     Stack bag(10);
     Queue tools(10);
+    cQueue inventory(100);
     char movement[3];
     while (N--)
     {
@@ -72,33 +88,35 @@ int main(void){
             cin>>col;
             col++;
             char dig = miner.dig(col);
+            miner.updateRow();
             if(dig == 'D'||dig == 'G') bag.Push(dig);
             else if(dig == 'B') miner.bomb(miner.getDig_row(),col);
             else if(dig == 'C') miner.lucky_clover(col,bag.Top());
             else if(dig == 'P') bag.pig();
-            else if (dig == 'M'||dig == 'F') tools.Push(dig);
+            else if (dig == 'M'||dig == 'F') inventory.enQueue(dig);
             miner.updateRow();
-            // miner.printMap();
+            //miner.printMap();
             // tools.printQueue();
-            // bag.printStack();
+            //bag.printStack();
         }else if(movement[0] == 'U'){
-            char use_tool = tools.Pop();
+            char use_tool = inventory.deQueue();
             if(use_tool == 'F') miner.flashlight();
             else if(use_tool == 'M'){
                 for(int i = 1;i<=R;i++){
                     char dig = miner.dig(i);
+                    miner.updateRow();
                     if(dig == 'G' || dig == 'D') bag.Push(dig);
                     else if(dig == 'B') miner.bomb(miner.getDig_row(),i);
                     else if(dig == 'C') miner.lucky_clover(i,bag.Top());
                     else if(dig == 'P') bag.pig();
-                    else if (dig == 'M'||dig == 'F') tools.Push(dig);
+                    else if (dig == 'M'||dig == 'F') inventory.enQueue(dig);
                     miner.updateRow();
                 }
                 miner.updateRow();
             }
-            // miner.printMap();
+            //miner.printMap();
             // tools.printQueue();
-            // bag.printStack();
+            //bag.printStack();
         }
     }
     bag.printStack();
@@ -140,9 +158,8 @@ bool Stack::isEmpty(){
 void Stack::Push(char item){
     if(isFull()) doubleSize();
 
-    if(!isFull()){
-        stack[++top] = item;
-    }
+    stack[++top] = item;
+
 }
 
 char Stack::Pop(){
@@ -154,7 +171,7 @@ char Stack::Pop(){
 }
 
 void Stack::pig(){
-    while (!isEmpty()&& Top()!='D') Pop();
+    while (!isEmpty() && Top()!='D') Pop();
 }
 
 void Stack::printStack(){
@@ -164,7 +181,7 @@ void Stack::printStack(){
         return;
     }
     else{
-        for(int i = top;i>=0;i--){
+        for(int i = 0;i<=top;i++){
             cout<<stack[i]<<" ";
         }
         cout<<"\n";
@@ -185,18 +202,18 @@ void Queue::doubleSize(){
     char* newQueue = new char[capacity];
     memset(newQueue,'\0',sizeof(char)*capacity);
     int j = -1;
-    for (int i = top; i <= rear; i++) {
+    for (int i = top; i < rear; i++) {
         j++;
         newQueue[j] = queue[i];
     }
     top = 0;
-    rear = j;
+    rear = j+1;
     delete [] queue;
     queue = newQueue;
 }
 
 bool Queue::isFull(){
-    return (rear+1 == capacity);
+    return (rear == capacity);
 }
 
 bool Queue::isEmpty(){
@@ -220,9 +237,8 @@ void Queue::printQueue(){
 char Queue::Pop(){
     if(isEmpty()) return '\0';
     char answer = queue[top];
-    for(int i = 0; i < rear-1; ++i) queue[i] = queue[i+1];
-    queue[rear] = '\0';
-    rear--;
+    queue[top] = '\0';
+    top++;
     return answer;
 }
 
@@ -234,7 +250,7 @@ char Queue::Top(){
     return queue[top];
 }
 char Queue::Rear(){
-    return queue[rear];
+    return queue[rear-1];
 }
 
 //Map 
@@ -255,7 +271,7 @@ Map::Map(int r,int c){
 
 void Map::updateRow(){
     bool hasChange = false;
-    for(int i = Row;i>=0;i--){
+    for(int i = Row;i>=1;i--){
         for(int j = 1;j<=Col;j++){
             if (map[i][j]!='_'){
                 Row = i;
@@ -292,17 +308,9 @@ void Map::lucky_clover(int now_c,char input){
     if(input == '\0' || isEmpty()) return;
     int L = max(1,now_c-2);
     int R = min(Col,now_c+2);
-    int max = -1;
-    for(int i = Row;i>=1;i--){
-        for(int j = L;j<=R;j++){
-            if(map[i][j]!='_'){
-                max = i;
-                break;
-            }
-        }
-        if(max != -1) break;
-    }
-    int tmp = max;
+    
+    int tmp = Row;
+    int max = Row;
     max++;
     int count = 0;
     while (count<3)
@@ -362,4 +370,51 @@ bool Map::isEmpty(){
     }
     return true;
 }
+
+// cQueue
+cQueue::cQueue(int size){
+    capacity = size;
+    front = -1;
+    rear = -1;
+    cqueue = new char[capacity];
+    memset(cqueue,'\0',sizeof(char)*capacity);
+}
+
+bool cQueue::isEmpty(){
+    if(front == -1) return true;
+    else return false;
+}
+bool cQueue::isFull(){
+    if(front == 0 && rear == capacity-1) return true;
+    if(front == rear+1) return true;
+    return false;
+}
+void cQueue::enQueue(char item){
+    if(isFull()) return;
+    else{
+        if(front == -1) front = 0;
+        rear = (rear+1)%capacity;
+        cqueue[rear] = item;
+        //cout<<"add "<<item<<"\n";
+    }
+}
+char cQueue::deQueue(){
+    char item;
+    if(isEmpty()) return '\0';
+    else{
+        item = cqueue[front];
+        cqueue[front] = '\0';
+        if(front == rear){
+            front = -1;
+            rear = -1;
+        }
+        else{
+            front = (front+1)%capacity;
+        }
+        //cout<<"delete "<<item<<"\n";
+        return item;
+    }
+}
+
+
 
