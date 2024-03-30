@@ -28,6 +28,7 @@ class cQueue{
         void enQueue(char item);
         char deQueue();
         void printQueue();
+        void doubleSize();
     private:
         int capacity;
         int front;
@@ -76,10 +77,10 @@ int main(void){
     int R,L,N;
     cin>>R>>L>>N;
     Map miner(L,R);
-    Stack bag(10);
-    Queue tools(10);
+    Stack bag(100000);
+    Queue tools(1000); 
     cQueue inventory(100);
-    char movement[3];
+    char movement[5];
     while (N--)
     {
         scanf("%s",movement);
@@ -88,7 +89,7 @@ int main(void){
             cin>>col;
             col++;
             char dig = miner.dig(col);
-            miner.updateRow();
+            if(dig!='C') miner.updateRow();
             if(dig == 'D'||dig == 'G') bag.Push(dig);
             else if(dig == 'B') miner.bomb(miner.getDig_row(),col);
             else if(dig == 'C') miner.lucky_clover(col,bag.Top());
@@ -104,7 +105,7 @@ int main(void){
             else if(use_tool == 'M'){
                 for(int i = 1;i<=R;i++){
                     char dig = miner.dig(i);
-                    miner.updateRow();
+                    if(dig!='C') miner.updateRow();
                     if(dig == 'G' || dig == 'D') bag.Push(dig);
                     else if(dig == 'B') miner.bomb(miner.getDig_row(),i);
                     else if(dig == 'C') miner.lucky_clover(i,bag.Top());
@@ -171,6 +172,7 @@ char Stack::Pop(){
 }
 
 void Stack::pig(){
+    if(isEmpty()) return;
     while (!isEmpty() && Top()!='D') Pop();
 }
 
@@ -323,7 +325,11 @@ void Map::lucky_clover(int now_c,char input){
 }
 
 char Map::dig(int col){
-    char answer;
+    char answer = '_';
+    if(isEmpty()){
+        Dig_row = -1;
+        return answer;
+    }
     for(int i = Row;i>=1;i--){
         if(map[i][col]!='_'){
             answer = map[i][col];
@@ -332,8 +338,7 @@ char Map::dig(int col){
             return answer;
         }
     }
-    Dig_row = -1;
-    return '_';
+    return answer;
 }
 
 void Map::flashlight(){
@@ -341,12 +346,12 @@ void Map::flashlight(){
         cout<<"MINE LEVEL:1\n_ _ _ _ _ _ \n";
         return;
     }
+    updateRow();
     cout<<"MINE LEVEL:"<<Row<<"\n";
     for(int i = 1;i<=Col;i++){
         cout<<map[Row][i]<<" ";
     }
     cout<<"\n";
-    
 }
 
 void Map::bomb(int now_r,int now_c){
@@ -357,7 +362,7 @@ void Map::bomb(int now_r,int now_c){
     for(int i = 0;i<8;i++){
         int row = now_r+r[i];
         int col = now_c+c[i];
-        map[row][col] = '_';
+        if(row<=Row&&row>=1&&col<=Col&&col>=1) map[row][col] = '_';
     }
     updateRow();
 }
@@ -380,6 +385,23 @@ cQueue::cQueue(int size){
     memset(cqueue,'\0',sizeof(char)*capacity);
 }
 
+void cQueue::doubleSize(){
+    int size = capacity*2;
+    char* newCqueue = new char[size];
+
+    int start = (front+1)*capacity;
+    if(start<2){
+        copy(cqueue+start,cqueue+capacity,newCqueue);
+        copy(cqueue,cqueue+rear+1,newCqueue+capacity-start);
+    }
+
+    front = 2*capacity-1;
+    rear = capacity-2;
+    capacity *= 2;
+    delete [] cqueue;
+    cqueue = newCqueue;
+}
+
 bool cQueue::isEmpty(){
     if(front == -1) return true;
     else return false;
@@ -390,7 +412,7 @@ bool cQueue::isFull(){
     return false;
 }
 void cQueue::enQueue(char item){
-    if(isFull()) return;
+    if(isFull()) doubleSize();
     else{
         if(front == -1) front = 0;
         rear = (rear+1)%capacity;
