@@ -123,10 +123,10 @@ void Chain::emerge(Node *middle){
         middle->level = max(max(middle->prev->level,middle->next->level),middle->level)+1;
         middle->damage = max(max(middle->prev->damage,middle->next->damage),middle->damage);
         middle->health = max(max(middle->prev->health,middle->next->health),middle->health);
+        target = middle;
         deleteNode(middle->prev);
         deleteNode(middle->next);
         middle->stance = n;
-        target = middle;
         return;
     }
     else{
@@ -142,7 +142,10 @@ void Chain::attack(Node* middle){
     if(middle->prev == middle->next && middle != middle->prev){
         middle->prev->health -= middle->damage;
         if(middle->prev->health <= 0){
-            if(middle->prev == target) deleteTarget();
+            if(middle->prev == target){
+                target = middle;
+                deleteNode(middle->prev);
+            }
             else deleteNode(middle->prev);
         }
         middle->stance = n;
@@ -151,11 +154,17 @@ void Chain::attack(Node* middle){
         middle->prev->health -= middle->damage;
         middle->next->health -= middle->damage;
         if(middle->prev->health<=0){
-            if(middle->prev == target) deleteTarget();
+            if(middle->prev == target){
+                target = middle;
+                deleteNode(middle->prev);
+            }
             else deleteNode(middle->prev);
         }
         if(middle->next->health<=0){
-            if(middle->next == target) deleteTarget();
+            if(middle->next == target){
+                target = middle;
+                deleteNode(middle->next);
+            }
             else deleteNode(middle->next);
         }
         middle->stance = n;
@@ -163,6 +172,7 @@ void Chain::attack(Node* middle){
 }
 
 void Chain::deleteNode(Node* node_delete){
+    if(isEmpty()) return;
     Node* Next = node_delete->next;
     Next->prev = node_delete->prev;
     node_delete->prev->next = Next;
@@ -171,6 +181,7 @@ void Chain::deleteNode(Node* node_delete){
 }
 
 void Chain::deleteTarget(){
+    if(isEmpty()) return;
     if(target->next == target && target->prev == target){
         delete target;
         target = NULL;
@@ -186,6 +197,7 @@ void Chain::deleteTarget(){
 }
 
 void Chain::shuffle(char dire,int times){
+    if(isEmpty()) return;
     Node* tmp = target;
     times = times%num;
     switch (dire)

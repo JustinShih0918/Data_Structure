@@ -65,18 +65,19 @@ Insert 6 1 1 Neutral
 Insert 7 1 1 Neutral
 Shuffle a 10
 ## for check
-9
-Insert 6 1 1 Neutral
-Insert 2 1 1 Neutral
+20
+Insert 1 1 1 Neutral
+Insert 1 1 1 Neutral
 Insert 2 1 1 Neutral
 Insert 3 1 1 Neutral
-Insert 3 1 1 Neutral
+Insert 1 1 1 Neutral
+Check 5
+
+2
 Insert 6 1 1 Neutral
-Insert 8 1 1 Neutral
-Insert 8 1 1 Neutral
-Check 8
+Check 1
 ## for attack
-3
+20
 Insert 1 1 1 Attack
 Insert 2 2 1 Neutral
 Insert 3 3 1 Attack
