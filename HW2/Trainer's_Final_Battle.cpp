@@ -48,6 +48,7 @@ class Chain{
     private:
         Node* head;
         Node* target;
+        int num;
 };
 
 int main(void){
@@ -81,7 +82,7 @@ int main(void){
             cin>>a;
             chain.reverse(a);
         }
-        chain.printChain();
+        //chain.printChain();
     }
     chain.printChain();
 }
@@ -90,10 +91,12 @@ int main(void){
 Chain::Chain(){
     target = NULL;
     head = NULL;
+    num = 0;
 }
 
 void Chain::insert(int type,int d,int h,string stage){
     Node* newNode = new Node(type,d,h,stage);
+    num++;
     if(target == NULL){
         head = newNode;
         target = head;
@@ -162,6 +165,7 @@ void Chain::deleteNode(Node* node_delete){
     Node* Next = node_delete->next;
     Next->prev = node_delete->prev;
     node_delete->prev->next = Next;
+    num--;
     delete node_delete;
 }
 
@@ -177,10 +181,12 @@ void Chain::deleteTarget(){
         delete target;
         target = Next;
     }
+    num--;
 }
 
 void Chain::shuffle(char dire,int times){
     Node* tmp = target;
+    times = times%num;
     switch (dire)
     {
     case 'c':
@@ -234,44 +240,45 @@ void Chain::check(int range){
 }
 
 void Chain::reverse(int range){
-    Node *tmp = target;
-    Node *tail = tmp;
-    Node *tmp2;
-    for(int i = 0;i<range-1 && tmp->next!=target;i++) tmp = tmp->next;
-
-    while (tail!=tmp->next)
+    Node* tmp = target;
+    //target round
+    if(range>num) range = num;
+    while (tmp->next!=target)
     {
-        tmp2 = tail->prev;
-        tail->prev = tail->next;
-        tail->next = tmp2;
-        tail = tail->prev;
-    }
-    // cout<<"6's prev is "<<tmp->prev->prev->poke<<endl;
-    // cout<<"6's next is "<<tmp->prev->prev->poke<<endl;
-    // cout<<"tmp is "<<tmp->poke<<"\n";
-    // cout<<"tmp prev is "<<tmp->prev->poke<<endl;
-    // cout<<"tmp next is "<<tmp->next->poke<<endl;
-    // cout<<"tail is "<<tail->poke<<"\n";
-    // cout<<"tail prev is "<<tail->prev->poke<<endl;
-    // cout<<"tail next is "<<tail->next->poke<<endl;
-    tail->next->next = tmp;
-    target = tmp;
-    
-    //printChain();
-    //next state
-    Node *first = tail->next;
-    tail = first;
-    while (first->next!=target && first!=target)
-    {
-        for(int i = 0;i<range && tmp->next!=target;i++) first = first->next;
-        while (tail!=first->next)
-        {
-            tmp2 = tail->prev;
-            tail->prev = tail->next;
-            tail->next = tmp2;
-            tail = tail->prev;
+        //cout<<"at here"<<"\n";
+        int amount = 0;
+        Node *arr[range];
+        for(int i = 0;i<range;i++){
+            arr[i] = tmp;
+            amount++;
+            tmp = tmp->next;
+            //cout<<"add: "<<arr[i]->poke<<"\n";
         }
-        tail->next->next = tmp;
+        //cout<<"after find tmp: "<<arr[0]->poke<<"\n";
+        //cout<<"amount: "<<amount<<"\n";
+        int j = amount-1;
+        for(int i = 0;i<amount/2;i++,j--){
+            //cout<<"in the for"<<"\n";
+            //cout<<"the two is "<<arr[i]->poke<<" "<<arr[j]->poke<<"\n";
+            int tmpVal = arr[i]->poke;
+            arr[i]->poke = arr[j]->poke;
+            arr[j]->poke = tmpVal;
+
+            tmpVal = arr[i]->damage;
+            arr[i]->damage = arr[j]->damage;
+            arr[j]->damage = tmpVal;
+
+            tmpVal = arr[i]->health;
+            arr[i]->health = arr[j]->health;
+            arr[j]->health = tmpVal;
+
+            tmpVal = arr[i]->level;
+            arr[i]->level = arr[j]->level;
+            arr[j]->level = tmpVal;
+
+            //cout<<"after the two is "<<arr[i]->poke<<" "<<arr[j]->poke<<"\n";
+        }
+        if(tmp == target || tmp->next == target) break;
     }
 }
 
