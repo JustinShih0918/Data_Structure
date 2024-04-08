@@ -44,12 +44,53 @@ Node* tmp = target;
     }
 ```
 ## test case for reverse
-5
+9
 Insert 1 1 1 Neutral
 Insert 2 1 1 Neutral
 Insert 3 1 1 Neutral
 Insert 4 1 1 Neutral
-Reverse 5
+Insert 5 1 1 Neutral
+Insert 6 1 1 Neutral
+Insert 7 1 1 Neutral
+Insert 8 1 1 Neutral
+Reverse 2
+## for shuffle
+8
+Insert 1 1 1 Neutral
+Insert 2 1 1 Neutral
+Insert 3 1 1 Neutral
+Insert 4 1 1 Neutral
+Insert 5 1 1 Neutral
+Insert 6 1 1 Neutral
+Insert 7 1 1 Neutral
+Shuffle a 10
+## for check
+9
+Insert 6 1 1 Neutral
+Insert 2 1 1 Neutral
+Insert 2 1 1 Neutral
+Insert 3 1 1 Neutral
+Insert 3 1 1 Neutral
+Insert 6 1 1 Neutral
+Insert 8 1 1 Neutral
+Insert 8 1 1 Neutral
+Check 8
+## for attack
+3
+Insert 1 1 1 Attack
+Insert 2 2 1 Neutral
+Insert 3 3 1 Attack
+
+## for Evolve
+7
+Insert 1 1 1 Evolve
+Insert 1 2 2 Evolve
+Insert 1 3 3 Evolve
+Insert 1 2 1 Evolve
+Insert 1 2 1 Evolve
+Insert 1 2 1 Evolve
+Insert 1 2 1 Evolve
+
 ### code for change pointer of reverse
 ```C++
 Node *tmp = target;
