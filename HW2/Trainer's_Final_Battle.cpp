@@ -81,7 +81,7 @@ int main(void){
             cin>>a;
             chain.reverse(a);
         }
-        //chain.printChain();
+        chain.printChain();
     }
     chain.printChain();
 }
@@ -112,7 +112,11 @@ void Chain::insert(int type,int d,int h,string stage){
 }
 
 void Chain::emerge(Node *middle){
-    if(middle->poke == middle->prev->poke && middle->poke == middle->next->poke && middle->prev->level<3 && middle->next->level<3){
+    if(middle->prev == middle->next && middle->prev == middle){
+        middle->stance = n;
+        return;
+    }
+    if(middle->prev != middle && middle->next != middle && middle->next != middle->prev && middle->poke == middle->prev->poke && middle->poke == middle->next->poke && middle->prev->level<3 && middle->next->level<3 && middle->level<3){
         middle->level = max(max(middle->prev->level,middle->next->level),middle->level)+1;
         middle->damage = max(max(middle->prev->damage,middle->next->damage),middle->damage);
         middle->health = max(max(middle->prev->health,middle->next->health),middle->health);
@@ -121,10 +125,17 @@ void Chain::emerge(Node *middle){
         middle->stance = n;
         target = middle;
     }
-    else return;
+    else{
+        middle->stance = n;
+        return;
+    }
 }
 void Chain::attack(Node* middle){
-    if(middle->prev == middle->next){
+    if(middle->prev == middle && middle->next == middle){
+        middle->stance = n;
+        return;
+    }
+    if(middle->prev == middle->next && middle != middle->prev){
         middle->prev->health-=middle->damage;
         if(middle->prev->health<=0){
             if(middle->prev == target) target = middle;
@@ -198,48 +209,28 @@ void Chain::shuffle(char dire,int times){
 
 void Chain::check(int range){
     //exist 2n method cause n<=100
+    Node* tail = target;
     Node* tmp = target;
-    Node* tmp2;
     Node* pre;
-    bool delete_it = false;
+    int arr[105] = {0};
     for(int i = 0;i<range;i++){
-        if(isEmpty()) break;
-        tmp2 = tmp->next;
-        for(int j = 0;j<range-i-1;j++){
-            if(isEmpty()) break;
-            if(tmp->poke == tmp2->poke){
-                if(tmp2 == target){
-                    //cout<<"delete target:"<<tmp2->poke<<"\n";
-                    deleteTarget(); //check
-                }
-                else{
-                    //cout<<"delete:"<<tmp2->poke<<"\n";
-                    pre = tmp2->prev;
-                    deleteNode(tmp2);
-                    tmp2 = pre;
-                    delete_it = true;
-                }
-            }
-            tmp2 = tmp2->next;
-        }
-        if(delete_it){
-            if(tmp == target){
-                //cout<<"delete_it target:"<<tmp->poke<<"\n";
-                deleteTarget();
-                tmp = target;
-            }
-            else{
-                //cout<<"delete_it:"<<tmp->poke<<"\n";
-                pre = tmp->prev;
-                deleteNode(tmp);
-                tmp = pre;
-                tmp = tmp->next;
-            }
-            delete_it = false;
-            i++;
-        }
-        else tmp = tmp->next;
+        arr[tail->poke] += 1;
+        tail = tail->next;
     }
+
+    for(int i = 0;i<range;i++){
+        for(int j = 1;j<=100;j++){
+            if(j == tmp->poke && arr[j]>=2){
+                pre = tmp->prev;
+                if(tmp == target) deleteTarget();
+                else deleteNode(tmp);
+                tmp = pre;
+                break;
+            }
+        }
+        tmp  = tmp->next;
+    }
+    
 }
 
 void Chain::reverse(int range){
