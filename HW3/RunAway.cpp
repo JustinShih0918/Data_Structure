@@ -5,13 +5,12 @@ const string Add = "Add";
 const string Delete = "Delete";
 const string Check = "Check";
 int result = 0;
+int path_root = 0;
 class Node{
     private:
         int val;
-        int a;
         int distance;
         int child_amount;
-        int max;
     public:
         int d1,d2;
         Node* parent;
@@ -19,17 +18,9 @@ class Node{
         Node(int v,int d){
             child_amount = 0;
             val = v;
-            a = val;
             distance = d;
             d1 = 0;
             d2 = 0;
-            max = 0;
-        }
-        int getA(){
-            return a;
-        }
-        int setA(int x){
-            a = x;
         }
         int getVal(){
             return val;
@@ -48,9 +39,6 @@ class Node{
         }
         void setD2(int a){
             d2 = a;
-        }
-        void setMax(){
-            max = val+d1+d2;
         }
         void addChild(Node* node){
             child_amount++;
@@ -92,6 +80,7 @@ class City{
         Node* root;
     public:
         City(int index,int dis){
+            amount = 0;
             city.resize(10050,NULL);
             node_index.push_back(index);
             Node *node = new Node(index,dis);
@@ -125,8 +114,17 @@ class City{
                 node_index.push_back(par);
             }
         }
+        void deleteVal(int val){
+            for(int i = 0;i<amount;i++){
+                if(node_index[i] == val){
+                    node_index.erase(node_index.begin()+i,node_index.begin()+i+1);
+                    break;
+                }
+            }
+        }
         void deleteNode(int val){
             if(city[val] == NULL) return;
+            deleteVal(val);
             city[val]->setParent(city[val]->parent);
             city[val]->parent->deleteChild(city[val]);
             Node* tmp = city[val];
@@ -139,24 +137,59 @@ class City{
                 if(city[i]) city[i]->printNode();
             }
         }
-        void solve(Node* current,Node* prev){
-            for(int i = 0;i<current->getChildAmount();i++){
-                if(current == prev) continue;
-                solve(current->child[i],current);
-                if(current->child[i]->getA() > current->d1){
-                    current->setD2(current->d1);
-                    current->setD1(current->child[i]->getA());
+        void reset(){
+            for(int i = 0;i<amount;i++){
+                city[node_index[i]]->setD1(0);
+                city[node_index[i]]->setD2(0);
+            }
+        }
+        void solve(Node* current){
+            if(current->getChildAmount() <=0 ){
+                current->setD1(0);
+                current->setD2(0);
+                if(current->getDis()>result){
+                    result = current->getDis();
+                    path_root = current->getVal();
                 }
-                else{
-                    current->setD2(max(current->d2,current->child[i]->getA()));
+                return;
+            }
+
+            for(int i = 0;i<current->getChildAmount();i++){
+                solve(current->child[i]);
+                if(current->child[i]->d1+current->child[i]->getDis() > current->d1){
+                    current->setD2(current->d1);
+
+                    int val = current->child[i]->d1+current->child[i]->getDis();
+                    current->setD1(val);
+                    // cout<<"choose d1: "<<current->child[i]->getVal()<<"\n";
+                    // cout<<"the d1 change to: "<<current->d1<<"\n";
+
+                }else if(current->child[i]->d1+current->child[i]->getDis() > current->d2){
+                    int val = current->child[i]->d1+current->child[i]->getDis();
+                    current->setD2(val);
+                    // cout<<"choose d2: "<<current->child[i]->getVal()<<"\n";
+                    // cout<<"the d2 change to: "<<current->d2<<"\n";
+                }
+
+                if(current->getDis()+current->d1+current->d2 > result){
+                    result = current->getDis()+current->d1+current->d2;
+                    path_root = current->getVal();
                 }
             }
-            result = max(result,current->getA()+current->d1+current->d2);
-            current->setA(current->getA()+current->d1);
         }
-        void check(){
-            solve(root,NULL);
-            cout<<result;
+        void check(int mode){
+            solve(root);
+            if(mode == 1){
+                cout<<"Maximum Value: "<<result<<"\n";
+                cout<<"Root of the Path: "<<path_root<<"\n";
+            }
+            else{
+                cout<<"Final Root: "<<path_root<<"\n";
+                return;
+            }
+            result = 0;
+            path_root = root->getVal();
+            reset();
         }
 };
 
@@ -186,10 +219,10 @@ int main(void){
             c.deleteNode(val);
         }
         else if(command == Check){
-            c.check();
+            c.check(1);
         }
         //c.printCity();
     }
-    
+    c.check(2);
 }
 
