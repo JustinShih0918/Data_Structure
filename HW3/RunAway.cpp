@@ -4,7 +4,7 @@ using namespace std;
 const string Add = "Add";
 const string Delete = "Delete";
 const string Check = "Check";
-int result = 0;
+int result = -2e9;
 int path_root = 0;
 class Node{
     private:
@@ -69,6 +69,7 @@ class Node{
                 cout<<child[i]->val<<" ";
             }
             cout<<"\n";
+            cout<<"D1: "<<d1<<" D2: "<<d2<<"\n";
         }
 };
 
@@ -187,7 +188,7 @@ class City{
                 cout<<"Final Root: "<<path_root<<"\n";
                 return;
             }
-            result = 0;
+            result = -2e9;
             path_root = root->getVal();
             reset();
         }

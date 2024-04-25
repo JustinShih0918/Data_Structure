@@ -27,11 +27,11 @@ Maximum Value: 34
 Root of the Path: 2
 Final Root: 4
 ------
-4 8
+4 2
 0 -1
-0 1 -1
-1 2 2
-2 3 9
+0 1 -2
+1 2 -3
+2 3 -4
 3 4 -11
 Check
 Add 4 5 21
