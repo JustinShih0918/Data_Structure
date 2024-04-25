@@ -4,7 +4,7 @@ using namespace std;
 const string Add = "Add";
 const string Delete = "Delete";
 const string Check = "Check";
-int result = -2e9;
+long long result = -2e9;
 int path_root = 0;
 class Node{
     private:
@@ -12,7 +12,7 @@ class Node{
         int distance;
         int child_amount;
     public:
-        int d1,d2;
+        long long d1,d2;
         Node* parent;
         vector<Node*> child;
         Node(int v,int d){
@@ -34,10 +34,10 @@ class Node{
         int getChildAmount(){
             return child_amount;
         }
-        void setD1(int a){
+        void setD1(long long a){
             d1 = a;
         }
-        void setD2(int a){
+        void setD2(long long a){
             d2 = a;
         }
         void addChild(Node* node){
@@ -49,6 +49,7 @@ class Node{
                 if(child[i]->val == node->val){
                     child.erase(child.begin()+i,child.begin()+i+1);
                     child_amount--;
+                    break;
                 }
             }
         }
@@ -160,13 +161,13 @@ class City{
                 if(current->child[i]->d1+current->child[i]->getDis() > current->d1){
                     current->setD2(current->d1);
 
-                    int val = current->child[i]->d1+current->child[i]->getDis();
+                    long long val = current->child[i]->d1+current->child[i]->getDis();
                     current->setD1(val);
                     // cout<<"choose d1: "<<current->child[i]->getVal()<<"\n";
                     // cout<<"the d1 change to: "<<current->d1<<"\n";
 
                 }else if(current->child[i]->d1+current->child[i]->getDis() > current->d2){
-                    int val = current->child[i]->d1+current->child[i]->getDis();
+                    long long val = current->child[i]->d1+current->child[i]->getDis();
                     current->setD2(val);
                     // cout<<"choose d2: "<<current->child[i]->getVal()<<"\n";
                     // cout<<"the d2 change to: "<<current->d2<<"\n";
@@ -226,4 +227,3 @@ int main(void){
     }
     c.check(2);
 }
-
