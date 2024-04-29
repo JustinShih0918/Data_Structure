@@ -1,5 +1,6 @@
 #include <bits/stdc++.h>
 #include <iostream>
+#include <iterator>
 using namespace std;
 const string Add = "Add";
 const string Delete = "Delete";
@@ -54,11 +55,16 @@ class Node{
             }
         }
         void setParent(Node* par){
-            for(int i = 0;i<child_amount;i++){
-                child[i]->parent = par;
-                par->child.push_back(child[i]);
+            for(auto it = child.begin();it!=child.end();it++){
+                (*it)->parent = par;
+                par->child.push_back(*it);
                 par->child_amount++;
             }
+            // for(int i = 0;i<child_amount;i++){
+            //     child[i]->parent = par;
+            //     par->child.push_back(child[i]);
+            //     par->child_amount++;
+            // }
         }
         void printNode(){
             cout<<"I am "<<val<<" with distance : "<<distance<<"\n";
