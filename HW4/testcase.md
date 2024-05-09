@@ -13,31 +13,18 @@ EDGE 3 5 1 2
 EDGE 5 6 1 2
 EDGE 7 6 3 2
 EDGE 8 2 6 1
-3
+
+10
 Order 1 1 2
+Order 2 3 2
 Drop 1 3
+Drop 2 2
 Complete 1
-
-Order 2 2 1
-Order 3 5 1
-Order 4 8 1
-Order 5 1 0
-Drop 1 3
-Order 2 2 1
-Drop 2 5
 Order 3 4 1
-Complete 1
-Order 4 5 1
-Order 5 6 7
-Drop 4 3
-Complete 4
-
-Order 5 6 1
-
-Drop 1 3
-Complete 1
-Drop 2 4
 Complete 2
+Drop 3 2
+Complete 3
+Order 4 4 1
 ------
 8 10 4
 PLACE 2 1
@@ -54,16 +41,51 @@ EDGE 3 5 1 2
 EDGE 5 6 1 2
 EDGE 7 6 3 2
 EDGE 8 2 6 1
-
 10
-Order 1 1 2
+Order 1 1 10
 Order 2 3 2
+Order 3 4 1
+Order 4 4 1
+Order 5 4 1
 Drop 1 3
 Drop 2 2
 Complete 1
-Order 3 4 1
 Complete 2
+Order 6 7 1
 Drop 3 2
 Complete 3
-Order 4 4 1
+-----
+6 5 
+PLACE 5 1
+PLACE 2 1
+EDGE 0 1 5 5
+EDGE 0 3 2 5
+EDGE 3 4 2 5
+EDGE 4 5 1 5
+EDGE 0 2 5 5
+1
+Order 1 0 0
+----
+6 5 2
+PLACE 2 1
+PLACE 4 1
+EDGE 1 5 2 100
+EDGE 5 3 0 100
+EDGE 3 2 3 100
+EDGE 1 6 1 100
+EDGE 6 4 4 100
 
+1
+Order 1 1 2
+----
+6 5 2
+PLACE 2 1
+PLACE 4 1
+EDGE 1 5 0 100
+EDGE 5 3 2 100
+EDGE 3 2 3 100
+EDGE 1 6 2 100
+EDGE 6 4 3 100
+
+1
+Order 1 1 2

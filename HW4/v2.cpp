@@ -3,8 +3,8 @@
 #include <cstdio>
 #include <queue>
 using namespace std;
-using PathInfo = pair<vector<int>,vector<int> >; //first d, second path
-using FinalPath = pair<pair<int,int>,vector<int> >;//first dst and distance,second path
+using PathInfo = pair<pair<int,int>,vector<int> >; //first dst and distance, second path
+using QueuePair = pair<int,int>;//first d[u], second u
 const string PLACE = "PLACE";
 const string EDGE = "EDGE";
 const string ORDER = "Order";
@@ -69,9 +69,7 @@ class Graph{
         void dfs(int v);
         void printEdge(int v,Edge* e);
         void resetVisit(){memset(visit,0,sizeof(visit));}
-        PathInfo Dijkstra(int src,int cap);
-        FinalPath ChoosePath_take(int src,int cap);
-        FinalPath ChoosePath_Drop(int src,int cap,int dst);
+        PathInfo Dijkstra(int src,int cap,int des, int mode);
         void TakeOrder(int src,int id,int cap);
         void DropOrder(int id,int dst,bool drop);
         void CompleteOrder(int id);
@@ -191,23 +189,30 @@ void Graph::PrintGraph(int v){
     dfs(v);
 }
 
-PathInfo Graph::Dijkstra(int src,int cap){
+PathInfo Graph::Dijkstra(int src,int cap,int des,int mode){
     vector<int> d(105,INT_MAX);
-    using QueuePair = pair<int,int>;
+    
     priority_queue<QueuePair,vector<QueuePair>,greater<QueuePair> > pq;
     d[src] = 0;
     pq.push(QueuePair(d[src],src));
     vector<int> path(105,-1);
+    int dst = -1;
+    bool found = false;
+    if(vertex[src]->people>0){
+        dst = src;
+        found = true;
+    }
     while (pq.size())
     {
         auto [u_dis,u] = pq.top();
         pq.pop();
         if(d[u] < u_dis) continue;
-
         vector<QueuePair> adj;
         int len = vertex[u]->neighbors.size();
-        for(int i = 0;i<len;i++){
-            adj.push_back(QueuePair(vertex[u]->neighbors[i].second->dis,vertex[u]->neighbors[i].first));
+        for(int j = 0;j<105;j++){
+            for(int i = 0;i<len;i++){
+                if(vertex[u]->neighbors[i].first == j) adj.push_back(QueuePair(vertex[u]->neighbors[i].second->dis,vertex[u]->neighbors[i].first));
+            }
         }
         for(auto [cost,v] : adj){
             Edge *edg = vertex[u]->findEdge(v);
@@ -215,62 +220,50 @@ PathInfo Graph::Dijkstra(int src,int cap){
                 d[v] = d[u]+cost;
                 pq.push(QueuePair(d[v],v));
                 path[v] = u;
-            }
-        }
-    }
-    return PathInfo(d,path);
-}
-
-FinalPath Graph::ChoosePath_take(int src,int cap){
-    PathInfo info = Dijkstra(src,cap);
-    int dst;
-    int distance = INT_MAX;
-    bool found = false;
-    for(auto it = vertex_ID.begin();it!=vertex_ID.end();it++){
-        int index = (*it);
-        if(vertex[index]->people>0){
-            if(info.first[index]<distance){
-                distance = info.first[index];
-                dst = index;
-                found = true;
-            }
-            else if(info.first[index] == distance && found){
-                if(vertex[index]->foundNeighbor(src) && vertex[dst]->foundNeighbor(src)){
-                    if(index<dst){
-                        dst = index;
+                if(vertex[v]->people>0){
+                    if(!found){
+                        dst = v;
+                        found = true;
+                    }
+                    if(d[v] < d[dst] && found){
+                        dst = v;
                     }
                 }
-                else if(vertex[index]->foundNeighbor(src) && !vertex[dst]->foundNeighbor(src)){
-                    dst = index;
-                }
             }
         }
     }
-
-    if(found) return FinalPath(pair<int,int>(dst,distance),info.second);
-    else return FinalPath(pair<int,int>(-1,0),info.second);
-
+    if(mode ==1){
+        if(found){
+            return PathInfo(QueuePair(d[dst],dst),path);
+        }
+        else return PathInfo(QueuePair(-1,-1),path);
+    }
+    else if(mode == 2){
+        return PathInfo(QueuePair(d[des],des),path);
+    }
 }
 
 void Graph::TakeOrder(int src,int id,int cap){
     Order *fresh = new Order(id,cap,src);
     order_ID.push_back(id);
-    FinalPath fp = ChoosePath_take(src,cap);
+    PathInfo fp = Dijkstra(src,cap,0,1); // first: distance, dst / second: path
 
-    if(fp.first.first!=-1){
-        vertex[fp.first.first]->people--;
-        fresh->src = fp.first.first;
+    if(fp.first.second!=-1){
+        vertex[fp.first.second]->people--;
+        fresh->src = fp.first.second;
         fresh->restaurant = src;
         fresh->status = DELIVERY;
-        fresh->Dtotal+=fp.first.second;
+        fresh->Dtotal+=fp.first.first;
         vector<int> path;
-        int tmp = fp.first.first;
+        int tmp = fp.first.second;
         while (tmp!=-1)
         {
             path.push_back(tmp);
             tmp = fp.second[tmp];
         }
         fresh->path_src_res = path;
+        // for(int i = 0;i<fresh->path_src_res.size();i++) cout<<fresh->path_src_res[i];
+        // cout<<endl;
         order[id] = fresh;
         PathCutting(id,1);
         cout<<"Order "<<id<<" from: "<<fresh->src<<"\n";
@@ -278,32 +271,23 @@ void Graph::TakeOrder(int src,int id,int cap){
     else cout<<"Just walk. T-T\n";
 }
 
-FinalPath Graph::ChoosePath_Drop(int src,int cap,int dst){
-    PathInfo info = Dijkstra(src,cap);
-    int distance;
-    if(info.first[dst]!=INT_MAX){
-        distance = info.first[dst];
-        return FinalPath(pair<int,int>(dst,distance),info.second);
-    }
-    else return FinalPath(pair<int,int>(-1,0),info.second);
-}
-
 void Graph::DropOrder(int id,int dst, bool drop){
     Order *target = order[id];
     PathRecover(id,1);
-    FinalPath fp = ChoosePath_Drop(dst,target->ts,target->restaurant);
-    
-    if(fp.first.first!=-1){
+    PathInfo p = Dijkstra(dst,target->ts,target->restaurant,2);
+    if(p.first.first!=INT_MAX){
         target->dst = dst;
-        target->Dtotal+=fp.first.second;
+        target->Dtotal+=p.first.first;
         vector<int> path;
-        int tmp = fp.first.first;
+        int tmp = p.first.second;
         while (tmp != -1)
         {
             path.push_back(tmp);
-            tmp = fp.second[tmp];
+            tmp = p.second[tmp];
         }
         target->path_res_dst = path;
+        // for(int i = 0;i<target->path_res_dst.size();i++) cout<<target->path_res_dst[i];
+        // cout<<endl;
         PathCutting(id,2);
         cout<<"Order "<<id<<" distance: "<<target->Dtotal<<"\n";
     }
@@ -325,7 +309,9 @@ void Graph::CompleteOrder(int id){
     PathRecover(id,2);
     target->status = FINISH;
     vertex[target->dst]->people++;
-
+    // for(int i = 0;i<vertex_ID.size();i++){
+    //     cout<<"ID: "<<vertex_ID[i]<<" people: "<<vertex[vertex_ID[i]]->people<<endl;
+    // }
     Order *next = ChooseOrder();
     if(next){
         DropOrder(next->id,next->dst, false);
