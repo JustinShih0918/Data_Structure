@@ -45,6 +45,11 @@ class Vertex{
         int people;
         vector<adjacent > neighbors;
         Vertex(int id,int p) : ID(id), people(p){}
+        Edge* findEdge(int v){
+            for(auto it = neighbors.begin();it!=neighbors.end();it++){
+                if((*it).first == v) return (*it).second;
+            }
+        }
         bool foundNeighbor(int target){
             for(auto it = neighbors.begin();it!=neighbors.end();it++){
                 if((*it).first == target) return true;
@@ -68,14 +73,17 @@ class Graph{
         FinalPath ChoosePath_take(int src,int cap);
         FinalPath ChoosePath_Drop(int src,int cap,int dst);
         void TakeOrder(int src,int id,int cap);
-        void DropOrder(int id,int dst);
+        void DropOrder(int id,int dst,bool drop);
         void CompleteOrder(int id);
         Order* ChooseOrder();
-        void PathRecover(int id);
+        void PathRecover(int id,int mode);
+        void PathCutting(int id,int mode);
+        void PrintAllEdge();
     private:
         int n_v;
         int n_e;
         Edge *edge[105][105];
+        vector<pair<int,int> > edge_ID;
         vector<Vertex*> vertex;
         vector<int> vertex_ID;
         vector<int> order_ID;
@@ -101,7 +109,7 @@ int main(void){
         cin>>src>>des>>dis>>tra;
         graph.InsertEdge(src,des,dis,tra);
     }
-    //graph.PrintGraph(v);
+    //graph.PrintAllEdge();
     int num;
     cin>>num;
     while (num--)
@@ -115,13 +123,14 @@ int main(void){
         else if(com == DROP){
             int id,dst;
             cin>>id>>dst;
-            graph.DropOrder(id,dst);
+            graph.DropOrder(id,dst,true);
         }
         else if(com == COMPLETE){
             int id;
             cin>>id;
             graph.CompleteOrder(id);
         }
+        //graph.PrintAllEdge();
     } 
 }
 
@@ -142,6 +151,7 @@ void Graph::InsertEdge(int u, int v,int dis,int tra){
     Edge *edg = new Edge(u,v,dis,tra);
     edge[u][v] = edg;
     edge[v][u] = edg;
+    edge_ID.push_back(pair<int,int>(u,v));
     if(!vertex[u]) InsertVertex(u,0);
     if(!vertex[v]) InsertVertex(v,0);
 
@@ -154,6 +164,14 @@ void Graph::printEdge(int v,Edge* e){
     if(e->p1 == v) cout<<"Going from "<<e->p1<<" to "<<e->p2;
     else cout<<"Going from "<<e->p2<<" to "<<e->p1;
     cout<<endl;
+}
+
+void Graph::PrintAllEdge(){
+    int len = edge_ID.size();
+    for(int i = 0;i<len;i++){
+        Edge* target = edge[edge_ID[i].first][edge_ID[i].second];
+        cout<<"u: "<<target->p1<<" v: "<<target->p2<<" distance: "<<target->dis<<" cap: "<<target->capacity<<"\n";
+    }
 }
 
 void Graph::dfs(int v){
@@ -192,7 +210,8 @@ PathInfo Graph::Dijkstra(int src,int cap){
             adj.push_back(QueuePair(vertex[u]->neighbors[i].second->dis,vertex[u]->neighbors[i].first));
         }
         for(auto [cost,v] : adj){
-            if(cost + d[u]<d[v]){
+            Edge *edg = vertex[u]->findEdge(v);
+            if(cost + d[u]<d[v] && edg->capacity>=cap){
                 d[v] = d[u]+cost;
                 pq.push(QueuePair(d[v],v));
                 path[v] = u;
@@ -248,12 +267,13 @@ void Graph::TakeOrder(int src,int id,int cap){
         int tmp = fp.first.first;
         while (tmp!=-1)
         {
-            path.push_back(fp.second[tmp]);
+            path.push_back(tmp);
             tmp = fp.second[tmp];
         }
         fresh->path_src_res = path;
         order[id] = fresh;
-        cout<<"ID "<<id<<" from: "<<fresh->src<<"\n";
+        PathCutting(id,1);
+        cout<<"Order "<<id<<" from: "<<fresh->src<<"\n";
     }
     else cout<<"Just walk. T-T\n";
 }
@@ -261,7 +281,6 @@ void Graph::TakeOrder(int src,int id,int cap){
 FinalPath Graph::ChoosePath_Drop(int src,int cap,int dst){
     PathInfo info = Dijkstra(src,cap);
     int distance;
-    cout<<info.first[dst]<<endl;
     if(info.first[dst]!=INT_MAX){
         distance = info.first[dst];
         return FinalPath(pair<int,int>(dst,distance),info.second);
@@ -269,9 +288,9 @@ FinalPath Graph::ChoosePath_Drop(int src,int cap,int dst){
     else return FinalPath(pair<int,int>(-1,0),info.second);
 }
 
-void Graph::DropOrder(int id,int dst){
+void Graph::DropOrder(int id,int dst, bool drop){
     Order *target = order[id];
-    cout<<target->ts<<endl;
+    PathRecover(id,1);
     FinalPath fp = ChoosePath_Drop(dst,target->ts,target->restaurant);
     
     if(fp.first.first!=-1){
@@ -281,13 +300,14 @@ void Graph::DropOrder(int id,int dst){
         int tmp = fp.first.first;
         while (tmp != -1)
         {
-            path.push_back(fp.second[tmp]);
+            path.push_back(tmp);
             tmp = fp.second[tmp];
         }
         target->path_res_dst = path;
+        PathCutting(id,2);
         cout<<"Order "<<id<<" distance: "<<target->Dtotal<<"\n";
     }
-    else{
+    else if(drop){
         target->dst = dst;
         cout<<"No Way Home\n";
     }
@@ -302,21 +322,58 @@ Order* Graph::ChooseOrder(){
 
 void Graph::CompleteOrder(int id){
     Order *target = order[id];
+    PathRecover(id,2);
     target->status = FINISH;
-    int DIS = target->Dtotal;
     vertex[target->dst]->people++;
 
     Order *next = ChooseOrder();
     if(next){
-        DropOrder(next->id,next->dst);
+        DropOrder(next->id,next->dst, false);
     }
 }
 
-void Graph::PathRecover(int id){
-    
+void Graph::PathCutting(int id,int mode){
+    Order *ord = order[id];
+    int traffic = ord->ts;
+    if(mode == 1){
+        int len = ord->path_src_res.size();
+        for(int i = 0;i<len-1;i++){
+            int u,v;
+            u = ord->path_src_res[i];
+            v = ord->path_src_res[i+1];
+            edge[u][v]->capacity-=traffic;
+        }
+    }
+    else{
+        int len = ord->path_res_dst.size();
+        for(int i = 0;i<len-1;i++){
+            int u,v;
+            u = ord->path_res_dst[i];
+            v = ord->path_res_dst[i+1];
+            edge[u][v]->capacity-=traffic;
+        }
+    }
 }
 
-
-
-
-
+void Graph::PathRecover(int id, int mode){
+    Order *ord = order[id];
+    int traffic = ord->ts;
+    if(mode == 1){
+        int len = ord->path_src_res.size();
+        for(int i = 0;i<len-1;i++){
+            int u,v;
+            u = ord->path_src_res[i];
+            v = ord->path_src_res[i+1];
+            edge[u][v]->capacity+=traffic;
+        }
+    }
+    else{
+        int len = ord->path_res_dst.size();
+        for(int i = 0;i<len-1;i++){
+            int u,v;
+            u = ord->path_res_dst[i];
+            v = ord->path_res_dst[i+1];
+            edge[u][v]->capacity+=traffic;
+        }
+    }
+}
