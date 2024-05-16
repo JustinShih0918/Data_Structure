@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 #include <iostream>
-#include <cstdio>
+#include <vector>
 #include <queue>
 using namespace std;
 using PathInfo = pair<pair<int,int>,vector<int> >; //first dst and distance, second path
@@ -21,7 +21,7 @@ class Edge{
         int p2;
         int dis;
         int capacity;
-        Edge(int src,int des,int distance,int traffic) : p1(src),p2(des),dis(distance),capacity(traffic){};
+        Edge(int src,int des,int distance,int traffic) : p1(src),p2(des),dis(distance),capacity(traffic){}
 };
 using adjacent = pair<int,Edge*>;
 
@@ -67,6 +67,7 @@ class Graph{
         void InsertEdge(int u, int v,int dis,int tra); // insert an edge (u, v)
         void PrintGraph(int v);
         void dfs(int v);
+        void bfs(int v);
         void printEdge(int v,Edge* e);
         void resetVisit(){memset(visit,0,sizeof(visit));}
         PathInfo Dijkstra(int src,int cap,int des, int mode);
@@ -107,7 +108,7 @@ int main(void){
         cin>>src>>des>>dis>>tra;
         graph.InsertEdge(src,des,dis,tra);
     }
-    //graph.PrintAllEdge();
+    //graph.PrintGraph(v);
     int num;
     cin>>num;
     while (num--)
@@ -172,6 +173,26 @@ void Graph::PrintAllEdge(){
     }
 }
 
+void Graph::bfs(int v){
+    queue<int> q;
+    visit[v] = 1;
+
+    q.push(v);
+    while (!q.empty())
+    {
+        int current = q.front();
+        q.pop();
+        cout<<current<<endl;
+        for(auto i = vertex[current]->neighbors.begin();i!=vertex[current]->neighbors.end();i++){
+            if(!visit[(*i).first]){
+                visit[(*i).first] = 1;
+                q.push((*i).first);
+            }
+        }
+    }
+    
+}
+
 void Graph::dfs(int v){
     cout<<vertex[v]->ID<<"\n";
     visit[v] = 1;
@@ -181,12 +202,16 @@ void Graph::dfs(int v){
             printEdge(v,(*i).second);
             dfs((*i).first);
         }
-    }   
+    }  
 }
 
 void Graph::PrintGraph(int v){
     resetVisit();
+    cout<<"dfs\n";
     dfs(v);
+    resetVisit();
+    cout<<"bfs\n";
+    bfs(v);
 }
 
 PathInfo Graph::Dijkstra(int src,int cap,int des,int mode){
@@ -206,6 +231,7 @@ PathInfo Graph::Dijkstra(int src,int cap,int des,int mode){
     {
         auto [u_dis,u] = pq.top();
         pq.pop();
+        //cout<<"now u is: "<<u<<endl;
         if(d[u] < u_dis) continue;
         vector<QueuePair> adj;
         int len = vertex[u]->neighbors.size();
@@ -216,7 +242,7 @@ PathInfo Graph::Dijkstra(int src,int cap,int des,int mode){
         }
         for(auto [cost,v] : adj){
             Edge *edg = vertex[u]->findEdge(v);
-            if(cost + d[u]<d[v] && edg->capacity>=cap){
+            if(cost + d[u] < d[v] && edg->capacity >= cap){
                 d[v] = d[u]+cost;
                 pq.push(QueuePair(d[v],v));
                 path[v] = u;
@@ -225,7 +251,7 @@ PathInfo Graph::Dijkstra(int src,int cap,int des,int mode){
                         dst = v;
                         found = true;
                     }
-                    if(d[v] < d[dst] && found){
+                    if(found && d[v] < d[dst]){
                         dst = v;
                     }
                 }
@@ -239,6 +265,7 @@ PathInfo Graph::Dijkstra(int src,int cap,int des,int mode){
         else return PathInfo(QueuePair(-1,-1),path);
     }
     else if(mode == 2){
+        //cout<<d[des]<<endl;
         return PathInfo(QueuePair(d[des],des),path);
     }
 }
@@ -274,9 +301,10 @@ void Graph::TakeOrder(int src,int id,int cap){
 void Graph::DropOrder(int id,int dst, bool drop){
     Order *target = order[id];
     PathRecover(id,1);
-    PathInfo p = Dijkstra(dst,target->ts,target->restaurant,2);
+    PathInfo p = Dijkstra(target->restaurant,target->ts,dst,2);
     if(p.first.first!=INT_MAX){
         target->dst = dst;
+        //cout<<"distance:"<<p.first.first<<endl;
         target->Dtotal+=p.first.first;
         vector<int> path;
         int tmp = p.first.second;
@@ -285,6 +313,7 @@ void Graph::DropOrder(int id,int dst, bool drop){
             path.push_back(tmp);
             tmp = p.second[tmp];
         }
+        reverse(path.begin(),path.end());
         target->path_res_dst = path;
         // for(int i = 0;i<target->path_res_dst.size();i++) cout<<target->path_res_dst[i];
         // cout<<endl;

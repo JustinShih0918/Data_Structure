@@ -89,3 +89,33 @@ EDGE 6 4 3 100
 
 1
 Order 1 1 2
+----
+5 6 1
+PLACE 2 1
+EDGE 1 2 2 100
+EDGE 1 4 2 100
+EDGE 3 4 1 100
+EDGE 3 5 2 100
+EDGE 1 5 1 100
+EDGE 1 3 4 100
+
+3
+Order 1 1 0
+Drop 1 3
+Complete 1
+----
+6 7 2
+PLACE 1 1
+PLACE 5 1
+EDGE 1 2 5 100
+EDGE 1 3 2 100
+EDGE 3 6 2 100
+EDGE 6 5 3 100
+EDGE 4 5 1 100
+EDGE 4 2 2 100
+EDGE 2 5 4 100
+
+3
+Order 1 1 0
+Drop 1 3
+Complete 1
