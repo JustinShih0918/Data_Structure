@@ -180,7 +180,8 @@ PathInfo Graph::Dijkstra_Set(int src,int des,int cap){
         pq.pop();
         if(d[u] < u_dis) continue;
         vector<QueuePair> adjacent;
-        for(int i = 0;i<vertexList[u]->neighbors.size();i++) {
+        int len = vertexList[u]->neighbors.size();
+        for(int i = 0;i<len;i++) {
             adjacent.push_back(QueuePair(vertexList[u]->neighbors[i].second->distance,vertexList[u]->neighbors[i].first));
         }
         for(auto [cost,v] : adjacent){
@@ -201,7 +202,6 @@ PathInfo Graph::Dijkstra_Set(int src,int des,int cap){
             }
         }
     }
-
     if(foundDelivery) return PathInfo(QueuePair(d[delivery],delivery),path);
     else return PathInfo(QueuePair(-1,-1),path);
 }
@@ -215,11 +215,22 @@ PathInfo Graph::findMinPath(int src,int des,int cap){
     pq.push(QueuePair(d[src],src));
     while (pq.size())
     {
+        priority_queue<QueuePair, vector<QueuePair>, greater<QueuePair> > p_test;
+        p_test = pq;
+        int len_1 = p_test.size();
+        for(int i = 0 ;i<len_1;i++){
+            QueuePair tmp = p_test.top();
+            p_test.pop();
+            cout<<tmp.first<<" "<<tmp.second;
+            cout<<"\n";
+        }
         auto [u_dis,u] = pq.top();
+        cout<<"u is "<<u<<endl;
         pq.pop();
         if(d[u] < u_dis) continue;
         vector<QueuePair> adjacent;
-        for(int i = 0;i<vertexList[u]->neighbors.size();i++){
+        int len = vertexList[u]->neighbors.size();
+        for(int i = 0;i<len;i++){
             adjacent.push_back(QueuePair(vertexList[u]->neighbors[i].second->distance,vertexList[u]->neighbors[i].first));
         }
         for(auto [cost, v] : adjacent){
@@ -231,7 +242,6 @@ PathInfo Graph::findMinPath(int src,int des,int cap){
             }
         }
     }
-    
     return PathInfo(QueuePair(d[des],des),path);
 }
 
@@ -254,8 +264,6 @@ void Graph::SetOrder(int id,int res,int cap){
             tmp = pf.second[tmp];
         }
         ord->path_man_to_res = path;
-        // for(int i = 0;i<path.size();i++) cout << path[i];
-        // cout<<"\n";
         order[id] = ord;
         orderID.push_back(id);
         Cutting(id,1);
@@ -269,6 +277,7 @@ void Graph::DropOrder(int id,int des,bool drop){
         if(drop) Recover(id,1);
         PathInfo pf = findMinPath(target->restaurant,des,target->ts);
         if(pf.first.first != 2e9){
+            if(!drop) target->status = DELIVERY;
             target->destination = des;
             target->distance_total+=pf.first.first;
             vector<int> path;
@@ -291,12 +300,11 @@ void Graph::DropOrder(int id,int des,bool drop){
             }
         }
     }
-    else if(drop) cout<<"No Way Home\n";
 }
 void Graph::CompleteOrder(int id){
     Order *target = order[id];
     if(target != NULL){
-       Recover(id,2);
+        Recover(id,2);
         target->status = FINISH;
         vertexList[target->destination]->man++;
         //cout<<"finish operation\n";
@@ -306,8 +314,10 @@ void Graph::CompleteOrder(int id){
 }
 Order* Graph::ChooseOrder(){
     //return NULL;
-    for(int i = 0;i<105;i++){
-        if(order[i] && order[i]->status == INLINE) return order[i];
+    int len = orderID.size();
+    sort(orderID.begin(),orderID.end());
+    for(int i = 0;i<len;i++){
+        if(order[orderID[i]] != NULL && order[orderID[i]]->status == INLINE) return order[orderID[i]];
     }
     return NULL;
 }

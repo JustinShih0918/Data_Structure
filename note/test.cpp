@@ -4,10 +4,10 @@ using namespace std;
 int main(void){
     using QueuePair = pair<int,int>;
     priority_queue<QueuePair,vector<QueuePair>,greater<QueuePair> > pq;
-    pq.push(QueuePair(5,1));
-    pq.push(QueuePair(4,2));
+    pq.push(QueuePair(3,1));
+    pq.push(QueuePair(3,2));
     pq.push(QueuePair(3,3));
-    pq.push(QueuePair(6,6));
+    pq.push(QueuePair(2,6));
     int len = pq.size();
     for(int i = 0 ;i<len;i++){
         QueuePair tmp = pq.top();
