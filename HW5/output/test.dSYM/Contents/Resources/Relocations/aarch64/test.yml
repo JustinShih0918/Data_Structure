@@ -1,0 +1,7 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/Users/justinshih/college/Data_Structure/HW5/output/test'
+relocations:
+  - { offsetInCU: 0x511B, offset: 0x511B, size: 0x8, addend: 0x0, symName: __ZStL8__ioinit, symObjAddr: 0x15F40, symBinAddr: 0x100008000, symSize: 0x0 }
+  - { offsetInCU: 0x5285, offset: 0x5285, size: 0x8, addend: 0x0, symName: _main, symObjAddr: 0x0, symBinAddr: 0x100003DF4, symSize: 0x6C }
+...

@@ -215,17 +215,17 @@ PathInfo Graph::findMinPath(int src,int des,int cap){
     pq.push(QueuePair(d[src],src));
     while (pq.size())
     {
-        priority_queue<QueuePair, vector<QueuePair>, greater<QueuePair> > p_test;
-        p_test = pq;
-        int len_1 = p_test.size();
-        for(int i = 0 ;i<len_1;i++){
-            QueuePair tmp = p_test.top();
-            p_test.pop();
-            cout<<tmp.first<<" "<<tmp.second;
-            cout<<"\n";
-        }
+        // priority_queue<QueuePair, vector<QueuePair>, greater<QueuePair> > p_test;
+        // p_test = pq;
+        // int len_1 = p_test.size();
+        // for(int i = 0 ;i<len_1;i++){
+        //     QueuePair tmp = p_test.top();
+        //     p_test.pop();
+        //     cout<<tmp.first<<" "<<tmp.second;
+        //     cout<<"\n";
+        // }
         auto [u_dis,u] = pq.top();
-        cout<<"u is "<<u<<endl;
+        //cout<<"u is "<<u<<endl;
         pq.pop();
         if(d[u] < u_dis) continue;
         vector<QueuePair> adjacent;
