@@ -1,8 +1,9 @@
 #include <bits/stdc++.h>
 #include <iostream>
-#include <string>
 #include <vector>
 #include <deque>
+#include <string>
+
 using namespace std;
 const string Insert = "Insert";
 const string Remove = "Remove";
@@ -16,6 +17,7 @@ public:
     int id;
     int level;
     Node(int i, int l) : id(i), level(l){}
+    ~Node(){}
 };
 
 class List{
@@ -30,7 +32,6 @@ public:
             if(list.empty()) return;
             if((*it).id == idx){
                 list.erase(it);
-                //cout << "erased\n";
             }
         }
     }
@@ -42,6 +43,7 @@ public:
             list.pop_back();
         }
     }
+
     void reorder(){
         vector<Node> odd;
         vector<Node> even;
@@ -68,50 +70,7 @@ public:
             swap(list[l+i],list[r - i]);
         }
     }
-    bool cmp(Node a, Node b){
-        if(a.level > b.level) return true;
-        else if(a.level == b.level){
-            if(a.id > b.id) return true;
-            else return false;
-        }
-        else return false;
-    }
-    void merge(deque<Node> other){
-        vector<Node> newlist;
-        if(!list.empty() && !other.empty()){
-            auto first = list.begin();
-            auto second = other.begin();
-             while ((first != list.end() || second != other.end()))
-            {
-                if(first!=list.end() && second!=other.end()){
-                    if(cmp(*first,*second)) {
-                        newlist.push_back(*second);
-                        second++;
-                    }
-                    else{
-                        newlist.push_back(*first);
-                        first++;
-                    }
-                }
-                else if(first == list.end() && second!=other.end()){
-                    newlist.push_back(*second);
-                    second++;
-                }
-                else if(first != list.end() && second == other.end()){
-                    newlist.push_back(*first);
-                    first++;
-                }
-                else break;
-            }
-            list.clear();
-            for(int i = 0;i<newlist.size();i++){
-                list.push_back(newlist[i]);
-            }
-        }
-        else if(list.empty() && !other.empty()){
-            list = other;
-        }
-    }
+
     void print(int idx){
         cout << "List " << idx << "\n";
         if(list.empty()){
@@ -124,6 +83,15 @@ public:
     }
 };
 
+bool cmp(Node a, Node b){
+        if(a.level > b.level) return true;
+        else if(a.level == b.level){
+            if(a.id > b.id) return true;
+            else return false;
+        }
+        else return false;
+}
+
 vector<List> mylist;
 
 void printAns(){
@@ -131,7 +99,6 @@ void printAns(){
         mylist[i].print(i);
     }
 }
-
 
 int main(void){
     int n;
@@ -172,8 +139,37 @@ int main(void){
         else if(command == Merge){
             int idx1,idx2;
             cin >> idx1 >> idx2;
-            mylist[idx1].merge(mylist[idx2].list);
-            mylist[idx2].list.clear();
+            deque<Node> &ListA = mylist[idx1].list;
+            deque<Node> &ListB = mylist[idx2].list;
+            ListA.clear();
+            // deque<Node> newlist;
+            // auto first = ListA.begin();
+            // auto second = ListB.begin();
+
+            // while (first != ListA.end() || second != ListB.end())
+            // {
+            //    if(first!=ListA.end() && second!=ListB.end()){
+            //         if(cmp(*first,*second)) {
+            //             newlist.push_back(*second);
+            //             second++;
+            //         }
+            //         else{
+            //             newlist.push_back(*first);
+            //             first++;
+            //         }
+            //     }
+            //     else if(first == ListA.end() && second!=ListB.end()){
+            //         newlist.push_back(*second);
+            //         second++;
+            //     }
+            //     else if(first != ListA.end() && second == ListB.end()){
+            //         newlist.push_back(*first);
+            //         first++;
+            //     }
+            //     else break;
+            // }
+            // mylist[idx2].list.clear();
+            
         }
         //printAns();
     }
