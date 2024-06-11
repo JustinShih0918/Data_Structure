@@ -30,7 +30,6 @@ public:
             if(list.empty()) return;
             if((*it).id == idx){
                 list.erase(it);
-                //cout << "erased\n";
             }
         }
     }
