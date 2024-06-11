@@ -18,7 +18,7 @@ public:
         for(int i = list.size()-1;i>=0;i--){
             if(list[i]!='_'){
                 rightMost = i;
-                break;
+                return;
             }
         }
     }
@@ -26,13 +26,14 @@ public:
         for(int i = 0;i<list.size();i++){
             if(list[i]!='_'){
                 top = i;
-                break;
+                return;
             }
         }
+        top = -1;
     }
     char pop_front(){
         updateTop();
-        if(top == list.size()) return '_';
+        if(top == list.size() || top == -1) return '_';
         char c = list[top];
         list[top] = '_';
         top++;
@@ -59,6 +60,7 @@ public:
     int digBefore = -1;
     Map(){}
     void Dig(int row){
+        if(row >= map.size()) return;
         digBefore = row;
         char c = map[row].pop_front();
         if(c == 'G' || c == 'D') backpack.push_back(c);
@@ -75,6 +77,7 @@ public:
 
         if(c == 'S'){
             Dig(digBefore);
+            if(end) return;
             Dig(digBefore);
         }
         else if(c == 'X') Button();
@@ -128,9 +131,11 @@ public:
             hasCoin = false;
             return;
         }
-        for(int i = 0;i<backpack.size();i++){
-            if(backpack[i] == 'G') backpack[i] = '_';
+        vector<char> tmp;
+        for(auto it = backpack.begin();it != backpack.end();it++){
+            if(*it != 'G') tmp.push_back(*it);
         }
+        backpack = tmp;
     }
     void printAns(){
         printBackpack();
@@ -163,8 +168,8 @@ int main(){
             cin >> row;
             play.Dig(row);
             if(play.end) return 0;
-            
         }
+        //play.printAns();
     }
     play.printAns();
 }

@@ -1,0 +1,41 @@
+4 3 15
+S D X S
+C V P G
+_ P X G
+DIG 0
+DIG 0
+DIG 0
+DIG 0
+DIG 0
+DIG 1
+USE
+DIG 2
+DIG 2
+DIG 3
+DIG 2
+DIG 2
+USE
+USE
+DIG 1
+----
+original:
+
+4 3 15
+G D X S
+G C P V
+_ P X G
+DIG 0
+DIG 0
+DIG 0
+DIG 0
+DIG 0
+DIG 1
+USE
+DIG 2
+DIG 2
+DIG 3
+DIG 2
+DIG 2
+USE
+USE
+DIG 1
